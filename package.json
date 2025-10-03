@@ -1,0 +1,19 @@
+{
+  "name": "weather-parade-app",
+  "version": "1.0.0",
+  "description": "NASA Space Apps Challenge - Will It Rain On My Parade?",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "start": "cd frontend && npm start"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": ["nasa", "weather", "space-apps", "earth-observation"],
+  "author": "Your Team",
+  "license": "MIT"
+}
