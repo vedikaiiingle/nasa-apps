@@ -8,7 +8,7 @@ import {
   Calendar, 
   Cloud, 
   Download, 
-  QuestionCircle, 
+  HelpCircle, 
   Lightbulb, 
   AlertCircle,
   CheckCircle,
@@ -113,7 +113,7 @@ export default function Documentation() {
 
   return (
     <div className="min-h-screen">
-      <Header />
+      {/* <Header /> */}
       
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
@@ -317,7 +317,7 @@ export default function Documentation() {
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-4 mb-4">
               <div className="p-3 bg-purple-100 rounded-xl">
-                <QuestionCircle className="w-8 h-8 text-purple-600" />
+                <HelpCircle className="w-8 h-8 text-purple-600" />
               </div>
               <h2 className="text-3xl font-bold text-gray-900">Frequently Asked Questions</h2>
             </div>

@@ -56,7 +56,7 @@ export function WeatherChart({ weatherData }: WeatherChartProps) {
         animate={{ opacity: 1, y: 0 }}
         className="card"
       >
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <h3 className="text-lg font-semibold text-white mb-4">
           Weather Probability Comparison
         </h3>
         
@@ -72,7 +72,7 @@ export function WeatherChart({ weatherData }: WeatherChartProps) {
                 contentStyle={{ 
                   backgroundColor: '#f9fafb', 
                   border: '1px solid #e5e7eb',
-                  borderRadius: '8px'
+                  borderRadius: '8px' 
                 }}
               />
               {Object.keys(barChartData[0] || {}).filter(key => key !== 'condition').map((key, index) => (
@@ -95,7 +95,7 @@ export function WeatherChart({ weatherData }: WeatherChartProps) {
         transition={{ delay: 0.2 }}
         className="card"
       >
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <h3 className="text-lg font-semibold text-white mb-4">
           Condition Distribution
         </h3>
         
@@ -136,7 +136,7 @@ export function WeatherChart({ weatherData }: WeatherChartProps) {
         transition={{ delay: 0.4 }}
         className="card"
       >
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <h3 className="text-lg font-semibold text-white mb-4">
           Legend
         </h3>
         
@@ -147,7 +147,7 @@ export function WeatherChart({ weatherData }: WeatherChartProps) {
                 className="w-4 h-4 rounded-full" 
                 style={{ backgroundColor: color }}
               />
-              <span className="text-sm text-gray-700 capitalize">
+              <span className="text-sm text-white capitalize">
                 {condition.replace(/([A-Z])/g, ' $1').trim()}
               </span>
             </div>

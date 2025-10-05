@@ -7,6 +7,7 @@ import { Toaster } from 'react-hot-toast'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3003'),
   title: 'Will It Rain On My Parade? | NASA Space Apps Challenge',
   description: 'Plan your outdoor events with confidence using NASA Earth observation data. Get weather probabilities for any location and date.',
   keywords: ['weather', 'NASA', 'space apps', 'outdoor events', 'weather prediction', 'earth observation'],
@@ -16,11 +17,20 @@ export const metadata: Metadata = {
     description: 'Plan your outdoor events with confidence using NASA Earth observation data.',
     type: 'website',
     locale: 'en_US',
+    images: [
+      {
+        url: '/images/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Will It Rain On My Parade?',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Will It Rain On My Parade?',
     description: 'Plan your outdoor events with confidence using NASA Earth observation data.',
+    images: ['/images/twitter-card.jpg'],
   },
 }
 

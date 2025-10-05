@@ -15,6 +15,13 @@ const nextConfig = {
       },
     ]
   },
+  webpack: (config, { dev }) => {
+    if (dev) {
+      // Disable filesystem cache in development to prevent ENOENT errors
+      config.cache = false;
+    }
+    return config;
+  },
 }
 
 module.exports = nextConfig

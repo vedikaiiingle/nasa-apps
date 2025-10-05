@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, Search, X } from 'lucide-react'
 import { useQuery } from 'react-query'
@@ -26,6 +26,7 @@ export function LocationSearch({ onLocationSelect, selectedLocation }: LocationS
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearching, setIsSearching] = useState(false)
   const [showResults, setShowResults] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Search locations
   const { data: searchResults, isLoading } = useQuery(
@@ -81,8 +82,22 @@ export function LocationSearch({ onLocationSelect, selectedLocation }: LocationS
     }
   }, [selectedLocation])
 
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowResults(false)
+      }
+    }
+
+    if (showResults) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showResults])
+
   return (
-    <div className="relative">
+    <div ref={dropdownRef} className="relative z-50">
       {/* Search Input */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -112,7 +127,8 @@ export function LocationSearch({ onLocationSelect, selectedLocation }: LocationS
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-lg z-50 max-h-64 overflow-y-auto"
+            className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-64 overflow-y-auto"
+            style={{ zIndex: 9999 }}
           >
             {/* Search Results */}
             {searchQuery.length >= 2 && (
@@ -210,3 +226,4 @@ export function LocationSearch({ onLocationSelect, selectedLocation }: LocationS
     </div>
   )
 }
+

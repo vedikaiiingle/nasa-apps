@@ -151,3 +151,26 @@ router.post('/batch', async (req, res) => {
 });
 
 module.exports = router;
+// OpenWeather current weather proxy (GET /api/weather/openweather/current?lat=&lng=)
+router.get('/openweather/current', async (req, res) => {
+  try {
+    const lat = parseFloat(req.query.lat);
+    const lng = parseFloat(req.query.lng);
+    if (Number.isNaN(lat) || Number.isNaN(lng)) {
+      return res.status(400).json({ error: 'lat and lng are required' });
+    }
+
+    const cacheKey = `ow_current:${lat}:${lng}`;
+    const cached = await cacheService.get(cacheKey);
+    if (cached) {
+      return res.json({ ...cached, cached: true });
+    }
+
+    const data = await weatherService.getOpenWeatherCurrent(lat, lng);
+    await cacheService.set(cacheKey, data, 300);
+    res.json({ ...data, cached: false, timestamp: new Date().toISOString() });
+  } catch (err) {
+    console.error('OpenWeather current error:', err);
+    res.status(500).json({ error: 'Failed to fetch OpenWeather data', message: err.message });
+  }
+});

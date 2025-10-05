@@ -36,9 +36,20 @@ class WeatherService {
         }
       }
 
+      // Always compute a single-number Parade Score (0-100)
+      // Use comfort index if already requested; otherwise compute once here
+      let comfortForScore = results.comfort;
+      if (!comfortForScore) {
+        comfortForScore = await this.getComfortIndex(location, date);
+      }
+      const paradeScore = Math.max(0, Math.min(100, Math.round(comfortForScore.average)));
+      const paradeLabel = paradeScore >= 80 ? 'Great' : paradeScore >= 60 ? 'Okay' : 'Risky';
+
       return {
         location,
         date,
+        paradeScore,
+        paradeLabel,
         conditions: results,
         metadata: {
           dataSource: 'NASA Earth Observation Data',
@@ -239,6 +250,32 @@ class WeatherService {
       console.error('Error getting historical data:', error);
       throw new Error('Failed to fetch historical weather data');
     }
+  }
+
+  // Fetch current weather from OpenWeather for given coordinates
+  async getOpenWeatherCurrent(lat, lng) {
+    const apiKey = process.env.OPENWEATHER_API_KEY;
+    if (!apiKey) {
+      throw new Error('Missing OPENWEATHER_API_KEY');
+    }
+
+    const url = 'https://api.openweathermap.org/data/2.5/weather';
+    const { data } = await axios.get(url, {
+      params: { lat, lon: lng, appid: apiKey, units: 'metric' }
+    });
+
+    return {
+      coord: data.coord,
+      weather: data.weather,
+      main: data.main,
+      wind: data.wind,
+      clouds: data.clouds,
+      rain: data.rain,
+      snow: data.snow,
+      sys: data.sys,
+      name: data.name,
+      dt: data.dt
+    };
   }
 }
 

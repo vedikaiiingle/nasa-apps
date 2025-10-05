@@ -3,16 +3,25 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { MapPin, Calendar, Cloud, Download, TrendingUp } from 'lucide-react'
-import { WeatherDashboard } from '@/components/WeatherDashboard'
 import { LocationSearch } from '@/components/LocationSearch'
 import { DatePicker } from '@/components/DatePicker'
+
+interface Location {
+  name: string
+  lat: number
+  lng: number
+  country: string
+  state?: string
+  city?: string
+  displayName: string
+}
 import { WeatherConditions } from '@/components/WeatherConditions'
 import { WeatherResults } from '@/components/WeatherResults'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 
 export default function Home() {
-  const [selectedLocation, setSelectedLocation] = useState(null)
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null)
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
   const [selectedConditions, setSelectedConditions] = useState(['temperature', 'precipitation'])
   const [showResults, setShowResults] = useState(false)
@@ -25,8 +34,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      <Header />
-      
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <motion.div
@@ -97,26 +104,40 @@ export default function Home() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="max-w-6xl mx-auto"
+          className="max-w-6xl mx-auto overflow-visible"
         >
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Panel - Input Controls */}
             <div className="lg:col-span-1 space-y-6">
-              <div className="card hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-blue-200">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <div className="card hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-blue-200 overflow-visible">
+                <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
                   <div className="p-2 bg-blue-100 rounded-lg">
                     <MapPin className="w-5 h-5 text-blue-600" />
                   </div>
                   Location
                 </h2>
-                <LocationSearch
-                  onLocationSelect={setSelectedLocation}
-                  selectedLocation={selectedLocation}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                  <div className="relative z-10 md:col-span-3">
+                    <LocationSearch
+                      onLocationSelect={setSelectedLocation}
+                      selectedLocation={selectedLocation}
+                    />
+                  </div>
+                  <div className="rounded-xl overflow-hidden border border-gray-200 bg-white/70 min-h-[300px] md:col-span-3">
+                    {/* Lightweight embed of the map page on the right */}
+                    <iframe
+                      src={selectedLocation ? `/map?lat=${selectedLocation.lat}&lng=${selectedLocation.lng}` : '/map'}
+                      title="Map Preview"
+                      className="w-full h-[340px] md:h-[300px]"
+                      key={selectedLocation ? `${selectedLocation.lat},${selectedLocation.lng}` : 'default-map'}
+                      loading="lazy"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="card hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-green-200">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
                   <div className="p-2 bg-green-100 rounded-lg">
                     <Calendar className="w-5 h-5 text-green-600" />
                   </div>
@@ -129,7 +150,7 @@ export default function Home() {
               </div>
 
               <div className="card hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-purple-200">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
                   <div className="p-2 bg-purple-100 rounded-lg">
                     <Cloud className="w-5 h-5 text-purple-600" />
                   </div>
@@ -144,7 +165,7 @@ export default function Home() {
               <button
                 onClick={handleSearch}
                 disabled={!selectedLocation || !selectedDate || selectedConditions.length === 0}
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-black font-semibold py-4 px-6 rounded-xl transition-all duration-300s disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
               >
                 <TrendingUp className="w-6 h-6" />
                 <span className="text-lg">Get Weather Probabilities</span>
@@ -175,6 +196,25 @@ export default function Home() {
                         you want to analyze. We'll show you the probability of each condition 
                         based on <span className="font-semibold text-blue-600">NASA's historical Earth observation data</span>.
                       </p>
+                      {selectedLocation && (
+                        <div className="mt-6">
+                          <button
+                            onClick={async () => {
+                              try {
+                                const res = await fetch(`/api/weather/openweather/current?lat=${selectedLocation.lat}&lng=${selectedLocation.lng}`)
+                                const data = await res.json()
+                                if (!res.ok) throw new Error(data?.message || 'Request failed')
+                                alert(`OpenWeather: ${data?.name || 'Current'} Temp: ${data?.main?.temp ?? 'N/A'}°C`)
+                              } catch (e: any) {
+                                alert(`Failed to fetch OpenWeather data: ${e.message}`)
+                              }
+                            }}
+                            className="mt-2 inline-flex items-center justify-center rounded-lg bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm font-medium shadow"
+                          >
+                            Quick Check via OpenWeather
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -210,8 +250,8 @@ export default function Home() {
               <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <MapPin className="w-8 h-8 text-blue-600" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-3">Global Coverage</h3>
-              <p className="text-gray-600 leading-relaxed">
+              <h3 className="text-lg font-bold text-white mb-3">Global Coverage</h3>
+              <p className="text-white-600 leading-relaxed">
                 Access weather data for any location worldwide using NASA's global satellite coverage.
               </p>
             </motion.div>
@@ -225,8 +265,8 @@ export default function Home() {
               <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <TrendingUp className="w-8 h-8 text-green-600" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-3">Historical Analysis</h3>
-              <p className="text-gray-600 leading-relaxed">
+              <h3 className="text-lg font-bold text-white mb-3">Historical Analysis</h3>
+              <p className="text-white leading-relaxed">
                 Get probability estimates based on years of historical weather data and patterns.
               </p>
             </motion.div>
@@ -240,8 +280,8 @@ export default function Home() {
               <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <Cloud className="w-8 h-8 text-purple-600" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-3">Multiple Conditions</h3>
-              <p className="text-gray-600 leading-relaxed">
+              <h3 className="text-lg font-bold text-white mb-3">Multiple Conditions</h3>
+              <p className="text-white leading-relaxed">
                 Analyze temperature, precipitation, wind, air quality, and comfort levels.
               </p>
             </motion.div>
@@ -255,8 +295,8 @@ export default function Home() {
               <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-orange-200 rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <Download className="w-8 h-8 text-orange-600" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-3">Export Data</h3>
-              <p className="text-gray-600 leading-relaxed">
+              <h3 className="text-lg font-bold text-white mb-3">Export Data</h3>
+              <p className="text-white leading-relaxed">
                 Download your weather analysis in CSV or JSON format for further use.
               </p>
             </motion.div>
